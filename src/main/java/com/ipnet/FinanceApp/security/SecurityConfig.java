@@ -9,15 +9,14 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
-import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.security.web.header.writers.XXssProtectionHeaderWriter;
 import com.ipnet.FinanceApp.security.jwt.AuthEntryPointJwt;
 import com.ipnet.FinanceApp.security.jwt.AuthTokenFilter;
+
 
 
 @Configuration
@@ -39,36 +38,53 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .csrf(AbstractHttpConfigurer::disable)
-                .exceptionHandling(exception -> {
-                    exception.authenticationEntryPoint((request, response, authException) -> {
-                        unauthorizedHandler.commence(request, response, authException);
-                    });
-                })
-                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/","/api/v1/login", "/error", "/csrf", "/resources/**", "/v3/api-docs/**")
-                        .permitAll()
-                        .requestMatchers("/api/v1/admin/**").hasRole("ADMIN")
-                        .requestMatchers("/api/v1/user/**").hasAnyRole("ADMIN", "USER")
-                        .anyRequest().authenticated()
+                .exceptionHandling(exception -> 
+                    exception.authenticationEntryPoint(unauthorizedHandler)
                 )
-                .headers(headers -> headers
-                        .frameOptions(HeadersConfigurer.FrameOptionsConfig::sameOrigin
-                        )
-                        .httpStrictTransportSecurity(hsts -> hsts
-                                .maxAgeInSeconds(31536000)
-                                .includeSubDomains(true)
-                        )
-                        .xssProtection(xss -> xss
-                                .headerValue(XXssProtectionHeaderWriter.HeaderValue.ENABLED_MODE_BLOCK)
-                        )
-                        .contentSecurityPolicy(csp -> csp
-                                .policyDirectives("default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; font-src 'self'")
-                        )
+                .sessionManagement(session -> 
+                    session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                )
+                .authorizeHttpRequests(auth -> auth
+                     
+                        .requestMatchers(
+                                "/v3/api-docs",
+                                "/v3/api-docs/**",
+                                "/swagger-ui.html",
+                                "/swagger-ui/**",
+                                "/swagger-resources",
+                                "/swagger-resources/**",
+                                "/webjars/**"
+                        ).permitAll()
+                        
+                       
+                        .requestMatchers("/api/v1/login").permitAll()
+                        
+                        
+                        .requestMatchers("/", "/error", "/favicon.ico").permitAll()
+                        
+                       
+                        .requestMatchers("/api/v1/admin/**").hasRole("ADMIN")
+                        
+                      
+                        .requestMatchers("/api/v1/user/**").hasAnyRole("ADMIN", "USER")
+                        
+                        
+                        .requestMatchers(
+                                "/client/**",
+                                "/compte/**",
+                                "/depot/**",
+                                "/retrait/**",
+                                "/virement/**",
+                                "/type-compte/**"
+                        ).authenticated()
+                        .anyRequest().authenticated()
                 );
 
-        http.authenticationProvider(authenticationProvider());
+        // Ajouter le filtre JWT AVANT le filtre d'authentification par défaut
         http.addFilterBefore(authenticationFilter, UsernamePasswordAuthenticationFilter.class);
+        
+        // Configurer l'authentification
+        http.authenticationProvider(authenticationProvider());
 
         return http.build();
     }
@@ -80,7 +96,9 @@ public class SecurityConfig {
 
     @Bean
     public DaoAuthenticationProvider authenticationProvider() {
+    	 
         DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider(userService);
+       
         authProvider.setPasswordEncoder(passwordEncoder());
         return authProvider;
     }
@@ -89,6 +107,4 @@ public class SecurityConfig {
     public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
         return authenticationConfiguration.getAuthenticationManager();
     }
-
-
 }

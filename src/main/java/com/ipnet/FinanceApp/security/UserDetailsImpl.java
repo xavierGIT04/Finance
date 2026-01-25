@@ -33,7 +33,11 @@ public class UserDetailsImpl implements UserDetails {
 
     public static UserDetailsImpl build(User user) {
         Collection<GrantedAuthority> authorities = new ArrayList<>();
-        authorities.add(new SimpleGrantedAuthority("ROLE_" + user.getRoles()));
+        String role = user.getRoles();
+        if (!role.startsWith("ROLE_")) {
+            role = "ROLE_" + role;
+        }
+        authorities.add(new SimpleGrantedAuthority(role));
 
 
         return new UserDetailsImpl(user.getPublicId(), user.getNom(), user.getUsername(), user.getPassword(), authorities);
