@@ -1,18 +1,12 @@
-package com.ipnet.FinanceApp.security.repository;
-
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.stereotype.Repository;
-import com.ipnet.FinanceApp.security.model.User;
+package com.ipnet.FinanceApp.security.Repository;
 
 import java.util.Optional;
-import java.util.UUID;
 
+import org.springframework.data.jpa.repository.JpaRepository;
 
-@Repository
-public interface UserRepository extends JpaRepository<User, Long> {
+import com.ipnet.FinanceApp.security.entity.User;
 
+public interface UserRepository extends JpaRepository<User, Long>{
     Optional<User> findByUsername(String username);
-    boolean existsByUsername(String username);
 
-    Optional<User> findByPublicId(UUID userId);
 }
