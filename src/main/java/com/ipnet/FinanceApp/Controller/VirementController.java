@@ -18,8 +18,13 @@ import com.ipnet.FinanceApp.DTO.Response.VirementDtoResponse;
 import com.ipnet.FinanceApp.Service.VirementService;
 import com.ipnet.FinanceApp.utils.BaseResponse;
 
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
+
 @RestController
 @RequestMapping("/virement/")
+@SecurityRequirement(name = "Bearer Authentication")
+@Tag(name = "Virements", description = "API de gestion des virements")
 public class VirementController {
 	
 	@Autowired

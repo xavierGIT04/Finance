@@ -1,5 +1,8 @@
 package com.ipnet.FinanceApp.security.config;
+
 import lombok.RequiredArgsConstructor;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -17,7 +20,8 @@ import com.ipnet.FinanceApp.security.Repository.UserRepository;
 @RequiredArgsConstructor
 public class ApplicationSecurityConfig {
 	
-    private final UserRepository userRepository;
+    private final  UserRepository userRepository;
+
     
 
     public ApplicationSecurityConfig(UserRepository userRepository) {
@@ -26,23 +30,36 @@ public class ApplicationSecurityConfig {
 	}
 
 	@Bean
-    public UserDetailsService userDetailsService(){
+    public UserDetailsService userDetailsService() {
         return username -> userRepository.findByUsername(username)
-                .orElseThrow(()-> new UsernameNotFoundException("User not found"));
+                .orElseThrow(() -> new UsernameNotFoundException("User not found with username: " + username));
     }
 
+    /**
+     * Provider d'authentification DAO
+     * Utilise le UserDetailsService et l'encodeur de mot de passe
+     */
     @Bean
     public AuthenticationProvider authenticationProvider() {
-        DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider(userDetailsService());
+        DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
+        authProvider.setUserDetailsService(userDetailsService());
         authProvider.setPasswordEncoder(passwordEncoder());
         return authProvider;
     }
 
+    /**
+     * Manager d'authentification
+     * Utilisé pour authentifier les utilisateurs
+     */
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
         return config.getAuthenticationManager();
     }
 
+    /**
+     * Encodeur de mot de passe BCrypt
+     * Utilisé pour hasher et vérifier les mots de passe
+     */
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();

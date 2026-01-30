@@ -18,8 +18,13 @@ import com.ipnet.FinanceApp.DTO.Response.RetraitDtoResponse;
 import com.ipnet.FinanceApp.Service.RetraitService;
 import com.ipnet.FinanceApp.utils.BaseResponse;
 
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
+
 @RestController
 @RequestMapping("/retrait/")
+@SecurityRequirement(name = "Bearer Authentication")
+@Tag(name = "Retraits", description = "API de gestion des retraits")
 public class RetraitController {
 
 	@Autowired

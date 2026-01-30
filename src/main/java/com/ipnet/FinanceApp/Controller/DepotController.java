@@ -18,8 +18,13 @@ import com.ipnet.FinanceApp.DTO.Response.DepotDtoResponse;
 import com.ipnet.FinanceApp.Service.DepotService;
 import com.ipnet.FinanceApp.utils.BaseResponse;
 
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
+
 @RestController
 @RequestMapping("/depot/")
+@SecurityRequirement(name = "Bearer Authentication")
+@Tag(name = "Dépôts", description = "API de gestion des dépôts")
 public class DepotController {
 	@Autowired
 	DepotService depotService;

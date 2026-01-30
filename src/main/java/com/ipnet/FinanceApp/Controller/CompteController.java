@@ -18,8 +18,15 @@ import com.ipnet.FinanceApp.DTO.Response.CompteDtoResponse;
 import com.ipnet.FinanceApp.Service.CompteService;
 import com.ipnet.FinanceApp.utils.BaseResponse;
 
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
+
+
+//POUR CompteController
 @RestController
 @RequestMapping("/compte/")
+@SecurityRequirement(name = "Bearer Authentication")
+@Tag(name = "Comptes", description = "API de gestion des comptes")
 public class CompteController {
 	
 	@Autowired
